@@ -32,7 +32,7 @@ const HomePage = () => {
     };
     
     loadData();
-  }, [fetchTopNews, fetchNews]); // 👈 dependencies আপডেট করুন
+  }, [fetchTopNews, fetchNews]); 
 
   const categories = [
     { name: "Technology", icon: "💻", color: "from-blue-500 to-cyan-500" },
@@ -47,7 +47,7 @@ const HomePage = () => {
   const featuredNews = topNews?.[0];
   const otherTopNews = topNews?.slice(1, 4) || [];
 
-  // লোডিং স্টেট
+ 
   if (!topNews || !news) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -89,19 +89,6 @@ const HomePage = () => {
               Your trusted source for the latest news and updates from around the world
             </p>
 
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto">
-              <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-full p-1 border border-white/20">
-                <input
-                  type="text"
-                  placeholder="Search for news, topics, or categories..."
-                  className="flex-1 bg-transparent px-6 py-4 text-white placeholder-gray-400 focus:outline-none"
-                />
-                <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300">
-                  Search
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
