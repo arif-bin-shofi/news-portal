@@ -18,8 +18,7 @@ import CreateNewsPage from "./pages/CreateNewsPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 
-//axios.defaults.baseURL = "https://news-portal-rosy-one.vercel.app/api";
-axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.baseURL = "https://news-portal-backend-seven.vercel.app/api";
 
 function App() {
   const { token, loadUser } = useAuthStore();

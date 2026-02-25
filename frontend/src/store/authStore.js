@@ -92,4 +92,3 @@ export const useAuthStore = create((set, get) => ({
   },
 }));
 
-// Note: Initial token is automatically handled by axios interceptor from localStorage
