@@ -36,7 +36,7 @@ export const getAllNews = async (req, res) => {
 export const getTopNews = async (req, res) => {
   try {
     const news = await News.find()
-      .populate("author", "name")
+      .populate("author", "profilePicture name")
       .sort({ views: -1, publishedAt: -1 })
       .limit(6);
 

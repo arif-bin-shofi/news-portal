@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useNewsStore } from "../store/newsStore";
 import NewsCard from "../components/news/NewsCard";
 import { Helmet } from "react-helmet-async";
+import { motion } from "framer-motion"; // 👈 ইম্পোর্ট যোগ করুন
+import { format } from "date-fns"; // 👈 ইম্পোর্ট যোগ করুন
 import { 
   FiTrendingUp, 
   FiClock, 
@@ -20,9 +22,17 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
-    fetchTopNews();
-    fetchNews(1);
-  }, []);
+    const loadData = async () => {
+      try {
+        await fetchTopNews();
+        await fetchNews(1);
+      } catch (error) {
+        console.error("Error loading news:", error);
+      }
+    };
+    
+    loadData();
+  }, [fetchTopNews, fetchNews]); // 👈 dependencies আপডেট করুন
 
   const categories = [
     { name: "Technology", icon: "💻", color: "from-blue-500 to-cyan-500" },
@@ -34,8 +44,17 @@ const HomePage = () => {
     { name: "Science", icon: "🔬", color: "from-indigo-500 to-blue-500" },
   ];
 
-  const featuredNews = topNews[0];
-  const otherTopNews = topNews.slice(1, 4);
+  const featuredNews = topNews?.[0];
+  const otherTopNews = topNews?.slice(1, 4) || [];
+
+  // লোডিং স্টেট
+  if (!topNews || !news) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -58,7 +77,6 @@ const HomePage = () => {
 
         <div className="relative container-custom py-20 md:py-28">
           <div className="max-w-4xl mx-auto text-center">
-
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Welcome to
@@ -84,8 +102,6 @@ const HomePage = () => {
                 </button>
               </div>
             </div>
-
-           
           </div>
         </div>
 
@@ -98,7 +114,7 @@ const HomePage = () => {
       </section>
 
       {/* Breaking News Ticker */}
-      {topNews.length > 0 && (
+      {topNews?.length > 0 && (
         <div className="bg-red-600 text-white py-3 overflow-hidden">
           <div className="container-custom">
             <div className="flex items-center">
@@ -183,7 +199,7 @@ const HomePage = () => {
                         <span className="text-xs text-gray-500">{news.readTime || "3 min read"}</span>
                       </div>
                       <h4 className="font-semibold text-gray-900 line-clamp-2">{news.title}</h4>
-                      <p className="text-sm text-gray-500 mt-1">{news.views} views</p>
+                      <p className="text-sm text-gray-500 mt-1">{news.views || 0} views</p>
                     </div>
                   </Link>
                 ))}
@@ -193,12 +209,73 @@ const HomePage = () => {
         </section>
       )}
 
+      {/* Top News Section */}
+{topNews && topNews.length > 0 && (
+  <section className="py-16">
+    <div className="container-custom">
+      <h2 className="text-3xl font-bold mb-8">Top News</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {topNews.map((item) => (
+          <motion.div
+            key={item._id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
+          >
+            <Link to={`/news/${item._id}`}>
+              {item.imageUrl && (
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/400x200?text=No+Image';
+                  }}
+                />
+              )}
+              <div className="p-4">
+                <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{item.summary}</p>
+                
+                {/* Author and Date Section */}
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center space-x-2">
+                    {/* Author Profile Image */}
+                    <img
+                      src={item.author?.profilePicture }
+                      alt={item.author?.name || 'Author'}
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-primary-100"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/36x36?text=User';
+                      }}
+                    />
+                    <span className="font-medium text-gray-700">
+                      {item.author?.name || 'Unknown Author'}
+                    </span>
+                  </div>
+                  <span>
+                    {item.publishedAt 
+                      ? format(new Date(item.publishedAt), 'MMM dd, yyyy') 
+                      : 'No date'}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
       {/* Latest News Section */}
-      <section className="py-16">
+      <section className="py-16 bg-gray-50">
         <div className="container-custom">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold mb-2"> News</h2>
+              <h2 className="text-3xl font-bold mb-2">Latest News</h2>
               <p className="text-gray-600">Stay updated with the most recent articles</p>
             </div>
             <Link
@@ -212,10 +289,7 @@ const HomePage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {news.slice(0, 6).map((newsItem, index) => (
-              <div
-                key={newsItem._id}
-                className="transform hover:-translate-y-1 transition-all duration-300"
-              >
+              <div key={newsItem._id} className="relative">
                 {index === 0 && (
                   <div className="absolute -top-2 -right-2 z-10">
                     <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
@@ -223,7 +297,9 @@ const HomePage = () => {
                     </span>
                   </div>
                 )}
-                <NewsCard news={newsItem} />
+                <div className="transform hover:-translate-y-1 transition-all duration-300">
+                  <NewsCard news={newsItem} />
+                </div>
               </div>
             ))}
           </div>
@@ -241,9 +317,8 @@ const HomePage = () => {
         </div>
       </section>
 
-
       {/* Add custom animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes blob {
           0% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
