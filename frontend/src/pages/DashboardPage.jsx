@@ -392,15 +392,7 @@ const DashboardPage = () => {
                                 )}
                               </div>
 
-                              {/* Author Info - Optional */}
-                              {news.author && (
-                                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center">
-                                  <FiUser className="w-4 h-4 text-gray-400 mr-2" />
-                                  <span className="text-sm text-gray-500">
-                                    By {news.author.name || "Anonymous"}
-                                  </span>
-                                </div>
-                              )}
+                            
                             </div>
                           </div>
                         </article>
